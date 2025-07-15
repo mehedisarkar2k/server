@@ -1,18 +1,17 @@
 import express from 'express';
 
 import { corsConfig, ENV, helmetConfig, rateLimitConfig } from '@/config';
-import { Logger, SendResponse } from '@/core';
+import { connectToDatabase, Logger, SendResponse, auth } from '@/core';
 import {
     globalErrorHandler,
-    asyncHandler,
     notFoundHandler,
     corsErrorHandler,
 } from '@/middlewares';
 import { authRouter } from '@/features/auth/auth.route';
+import { toNodeHandler } from "better-auth/node";
+
 
 const app = express();
-
-Logger.info(`Environment: ${ENV.NODE_ENV}`);
 
 // Trust proxy for production
 app.set('trust proxy', ENV.NODE_ENV === 'production');
@@ -21,6 +20,9 @@ app.set('trust proxy', ENV.NODE_ENV === 'production');
 app.use(helmetConfig);
 app.use(corsConfig);
 app.use(corsErrorHandler);
+
+// better-auth middleware
+app.all("/api/auth/*splat", toNodeHandler(auth));
 
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
@@ -45,38 +47,28 @@ app.get('/health', (req, res) => {
             status: 'OK',
             timestamp: new Date().toISOString(),
             uptime: process.uptime(),
-            environment: ENV.NODE_ENV
+            environment: ENV.NODE_ENV,
         },
         message: 'Health check successful',
     });
 });
 
-// Example of async route - MUST use asyncHandler
-app.get('/test-async', asyncHandler(async (req, res) => {
-    // This is just an example - you can remove this route
-    // Simulate an async operation that might fail
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    SendResponse.success({
-        res,
-        data: { message: 'Async operation completed' },
-        message: 'Test async route',
-    });
-}));
-
 // API Routes
 app.use('/api/auth', authRouter);
 
-// 404 handler for routes that don't exist (MUST be after all routes)
+// ! 404 handler for routes that don't exist (MUST be after all routes)
 app.use(notFoundHandler);
 
-// Global error handler (MUST be last)
+// ! Global error handler (MUST be last)
 app.use(globalErrorHandler);
 
-app.listen(ENV.PORT, () => {
-    Logger.info(`Server is running on port:`, ENV.PORT);
-    Logger.info(`Server URL: http://localhost:${ENV.PORT}`);
-}).on('error', (error) => {
-    Logger.error(`Error starting server: ${error}`);
-    process.exit(1);
-});
+app
+    .listen(ENV.PORT, async () => {
+        await connectToDatabase();
+        Logger.info(`Server is running on port:`, ENV.PORT);
+        Logger.info(`Server URL: http://localhost:${ENV.PORT}`);
+    })
+    .on('error', (error) => {
+        Logger.error(`Error starting server: ${error}`);
+        process.exit(1);
+    });

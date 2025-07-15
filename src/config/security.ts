@@ -21,10 +21,10 @@ export const rateLimitConfig = rateLimit({
             data: {
                 retryAfter: '15 minutes',
                 windowMs: 15 * 60 * 1000,
-                limit: ENV.NODE_ENV === 'production' ? 100 : 1000
-            }
+                limit: ENV.NODE_ENV === 'production' ? 100 : 1000,
+            },
         });
-    }
+    },
 });
 
 // Auth rate limiting (stricter)
@@ -40,17 +40,22 @@ export const authRateLimit = rateLimit({
             data: {
                 retryAfter: '15 minutes',
                 windowMs: 15 * 60 * 1000,
-                limit: ENV.NODE_ENV === 'production' ? 5 : 50
-            }
+                limit: ENV.NODE_ENV === 'production' ? 5 : 50,
+            },
         });
-    }
+    },
 });
 
 // CORS configuration
 export const corsConfig = cors({
-    origin: ENV.NODE_ENV === 'production'
-        ? ENV.ALLOWED_ORIGINS?.split(',') || false
-        : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'],
+    origin:
+        ENV.NODE_ENV === 'production'
+            ? ENV.ALLOWED_ORIGINS?.split(',') || false
+            : [
+                'http://localhost:3000',
+                'http://localhost:3001',
+                'http://localhost:5173',
+            ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -60,18 +65,26 @@ export const corsConfig = cors({
 export const corsErrorHandler = (req: Request, res: Response, next: any) => {
     // Check if CORS error occurred
     const origin = req.headers.origin;
-    const allowedOrigins = ENV.NODE_ENV === 'production'
-        ? ENV.ALLOWED_ORIGINS?.split(',') || []
-        : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'];
+    const allowedOrigins =
+        ENV.NODE_ENV === 'production'
+            ? ENV.ALLOWED_ORIGINS?.split(',') || []
+            : [
+                'http://localhost:3000',
+                'http://localhost:3001',
+                'http://localhost:5173',
+            ];
 
-    if (origin && !allowedOrigins.includes(origin) && ENV.NODE_ENV === 'production') {
+    if (
+        origin &&
+        !allowedOrigins.includes(origin) &&
+        ENV.NODE_ENV === 'production'
+    ) {
         return SendResponse.forbidden({
             res,
             message: 'CORS policy violation: Origin not allowed',
             data: {
                 origin,
-                allowedOrigins
-            }
+            },
         });
     }
 
