@@ -21,6 +21,7 @@ const EnvSchema = z.object({
     NODE_ENV: z.enum(['development', 'production', 'test']),
     PORT: z.coerce.number().default(8000),
     MONGO_URI: z.url(),
+    BETTER_AUTH_SECRET: z.string().min(6, 'BETTER_AUTH_SECRET must be set'),
 })
 
 export type Env = z.infer<typeof EnvSchema>
