@@ -2,11 +2,13 @@ import express from 'express';
 
 import { ENV } from '@/config'; // Ensure environment variables are loaded
 import { Logger, SendResponse } from '@/core';
+import { globalErrorHandler, asyncHandler, notFoundHandler } from '@/middlewares';
 
 const app = express();
 
 Logger.info(`Environment: ${ENV.NODE_ENV}`);
 
+// Regular routes (no async, so no wrapper needed)
 app.get('/', (req, res) => {
     SendResponse.success({
         res,
@@ -22,6 +24,25 @@ app.get('/health', (req, res) => {
         message: 'Health check successful',
     });
 });
+
+// Example of async route - MUST use asyncHandler
+app.get('/test-async', asyncHandler(async (req, res) => {
+    // This is just an example - you can remove this route
+    // Simulate an async operation that might fail
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    SendResponse.success({
+        res,
+        data: { message: 'Async operation completed' },
+        message: 'Test async route',
+    });
+}));
+
+// 404 handler for routes that don't exist (MUST be after all routes)
+app.use(notFoundHandler);
+
+// Global error handler (MUST be last)
+app.use(globalErrorHandler);
 
 app.listen(ENV.PORT, () => {
     Logger.info(`Server is running on port:`, ENV.PORT);
