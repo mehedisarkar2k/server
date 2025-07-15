@@ -8,6 +8,7 @@
     "build-and-start": "bun run build && bun run start"
   },
   "dependencies": {
+    "@better-auth/expo": "^1.2.12",
     "@typegoose/typegoose": "^12.17.0",
     "better-auth": "^1.2.12",
     "cors": "^2.8.5",

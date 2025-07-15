@@ -4,8 +4,6 @@ import path from 'node:path';
 import process from 'node:process';
 import z from 'zod';
 
-console.log(process.cwd());
-
 expand(
     config({
         path: path.resolve(
@@ -22,7 +20,7 @@ const EnvSchema = z.object({
     PORT: z.coerce.number().default(8000),
     MONGO_URI: z.url(),
     BETTER_AUTH_SECRET: z.string().min(6, 'BETTER_AUTH_SECRET must be set'),
-    ALLOWED_ORIGINS: z.string().optional().default('http://localhost:3000,http://localhost:3001,http://localhost:5173'),
+    ALLOWED_ORIGINS: z.string().optional().default('http://localhost:3000,http://localhost:3001,http://localhost:5173,betterauth://index,betterauth://forgot-password'),
     BASE_URL: z.url().optional().default('http://localhost:3000'),
     GOOGLE_CLIENT_ID: z.string("GOOGLE_CLIENT_ID must be set"),
     GOOGLE_CLIENT_SECRET: z.string("GOOGLE_CLIENT_SECRET must be set"),
