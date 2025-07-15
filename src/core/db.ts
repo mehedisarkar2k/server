@@ -38,4 +38,4 @@ async function connectToDatabase(): Promise<typeof mongoose> {
     }
 }
 
-export { connectToDatabase, DB };
+export { DB, connectToDatabase };
