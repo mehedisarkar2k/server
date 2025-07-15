@@ -1,13 +1,15 @@
-import { auth } from '@/core/auth';
+import { getAuthHandler } from '@/core/auth';
 import { AuthResponse } from './auth.model';
 
 export class AuthService {
+    private static auth = getAuthHandler();
+
     /**
      * Sign up a new user using Better Auth server API
      */
     static async signUp(email: string, password: string, name: string): Promise<AuthResponse> {
         try {
-            const response = await auth.api.signUpEmail({
+            const response = await this.auth.api.signUpEmail({
                 body: {
                     email,
                     password,
@@ -47,7 +49,7 @@ export class AuthService {
      */
     static async signIn(email: string, password: string): Promise<AuthResponse> {
         try {
-            const response = await auth.api.signInEmail({
+            const response = await this.auth.api.signInEmail({
                 body: {
                     email,
                     password,
@@ -86,7 +88,7 @@ export class AuthService {
      */
     static async signOut(token?: string): Promise<{ success: boolean; message: string }> {
         try {
-            await auth.api.signOut({
+            await this.auth.api.signOut({
                 headers: token ? { 'authorization': `Bearer ${token}` } as any : {},
             });
 
@@ -108,7 +110,7 @@ export class AuthService {
      */
     static async getSession(token: string) {
         try {
-            const response = await auth.api.getSession({
+            const response = await this.auth.api.getSession({
                 headers: {
                     'authorization': `Bearer ${token}`,
                 } as any,

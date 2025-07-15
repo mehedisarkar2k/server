@@ -1,14 +1,19 @@
 import express from 'express';
 
 import { corsConfig, ENV, helmetConfig, rateLimitConfig } from '@/config';
-import { Logger, SendResponse, connectToDatabase, getAuthHandler } from '@/core';
+import {
+    Logger,
+    SendResponse,
+    connectToDatabase,
+    getAuthHandler,
+} from '@/core';
 import {
     globalErrorHandler,
     notFoundHandler,
     corsErrorHandler,
 } from '@/middlewares';
-import { toNodeHandler } from "better-auth/node";
-
+import { toNodeHandler } from 'better-auth/node';
+import { addLocals } from './middlewares/add-locals';
 
 const app = express();
 
@@ -33,6 +38,11 @@ const startServer = async () => {
     app.use(express.json({ limit: '10mb' }));
     app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+    // Add database connection to res.locals
+    // This allows access to the database connection in route handlers
+    Logger.info('Adding database connection to res.locals');
+    app.use(addLocals(DB));
+
     // Rate limiting
     app.use(rateLimitConfig);
 
@@ -40,7 +50,10 @@ const startServer = async () => {
     app.get('/', (req, res) => {
         SendResponse.success({
             res,
-            data: { message: 'Server is running!' },
+            data: {
+                message: 'Server is running!',
+                db: res.locals.db ? 'Connected' : 'Not connected',
+            },
             message: 'Welcome to the Better Auth Test Server',
         });
     });
@@ -77,7 +90,6 @@ const startServer = async () => {
             Logger.error(`Error starting server: ${error}`);
             process.exit(1);
         });
-
-}
+};
 
 startServer();
