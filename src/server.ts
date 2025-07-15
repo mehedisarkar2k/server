@@ -22,7 +22,7 @@ app.use(corsConfig);
 app.use(corsErrorHandler);
 
 // better-auth middleware
-app.all("/api/auth/*splat", toNodeHandler(auth));
+app.all("/api/auth/*paths", toNodeHandler(auth));
 
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
