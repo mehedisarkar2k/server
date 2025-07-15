@@ -7,7 +7,7 @@ let DB: mongoose.mongo.Db | undefined
 
 async function connectToDatabase(): Promise<typeof mongoose> {
     try {
-        const URI = ENV.MONGO_URI;
+        const URI = `${ENV.MONGO_URI}/better-auth-${ENV.NODE_ENV}`;
 
         if (!URI) {
             throw new Error('Database URI is not defined in the configuration');

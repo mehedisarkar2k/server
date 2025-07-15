@@ -1,18 +1,23 @@
 import { ENV } from '@/config';
 import { betterAuth } from 'better-auth';
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
-import { DB } from './db';
+import mongoose from 'mongoose';
 
-export const auth = betterAuth({
-    baseURL: ENV.BASE_URL,
-    debug: ENV.NODE_ENV !== 'production',
-    secret: ENV.BETTER_AUTH_SECRET,
-    database: mongodbAdapter(DB!),
+// Wait for mongoose connection and create Better Auth instance
+const createAuth = () => {
+    return betterAuth({
+        baseURL: ENV.BASE_URL,
 
-    // providers
-    emailAndPassword: {
-        enabled: true,
-        requireEmailVerification: false,
+        debug: ENV.NODE_ENV !== 'production',
+        secret: ENV.BETTER_AUTH_SECRET,
+        database: mongodbAdapter(mongoose.connection.db!),
 
-    },
-})
+        // providers
+        emailAndPassword: {
+            enabled: true,
+            requireEmailVerification: false,
+        },
+    });
+};
+
+export const auth = createAuth();

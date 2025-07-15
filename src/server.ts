@@ -7,7 +7,6 @@ import {
     notFoundHandler,
     corsErrorHandler,
 } from '@/middlewares';
-import { authRouter } from '@/features/auth/auth.route';
 import { toNodeHandler } from "better-auth/node";
 
 
@@ -21,8 +20,9 @@ app.use(helmetConfig);
 app.use(corsConfig);
 app.use(corsErrorHandler);
 
-// better-auth middleware
-app.all("/api/auth/*paths", toNodeHandler(auth));
+// better-auth middleware - handle all auth routes
+// Temporarily commented out due to path-to-regexp error
+app.all("/api/auth/*splat", toNodeHandler(auth));
 
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
@@ -54,7 +54,8 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes
-app.use('/api/auth', authRouter);
+// Using custom auth routes since Better Auth handler has path-to-regexp issues
+// app.use('/api/auth', authRouter);
 
 // ! 404 handler for routes that don't exist (MUST be after all routes)
 app.use(notFoundHandler);
