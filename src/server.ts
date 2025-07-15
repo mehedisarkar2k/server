@@ -1,14 +1,33 @@
 import express from 'express';
 
-import { ENV } from '@/config'; // Ensure environment variables are loaded
+import { corsConfig, ENV, helmetConfig, rateLimitConfig } from '@/config';
 import { Logger, SendResponse } from '@/core';
-import { globalErrorHandler, asyncHandler, notFoundHandler } from '@/middlewares';
+import {
+    globalErrorHandler,
+    asyncHandler,
+    notFoundHandler,
+} from '@/middlewares';
+import { authRouter } from '@/features/auth/auth.route';
 
 const app = express();
 
 Logger.info(`Environment: ${ENV.NODE_ENV}`);
 
-// Regular routes (no async, so no wrapper needed)
+// Trust proxy for production
+app.set('trust proxy', ENV.NODE_ENV === 'production');
+
+// Security middleware
+app.use(helmetConfig);
+app.use(corsConfig);
+
+// Body parsing
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Rate limiting
+app.use(rateLimitConfig);
+
+// Routes
 app.get('/', (req, res) => {
     SendResponse.success({
         res,
@@ -20,7 +39,12 @@ app.get('/', (req, res) => {
 app.get('/health', (req, res) => {
     SendResponse.success({
         res,
-        data: { status: 'OK', timestamp: new Date().toISOString() },
+        data: {
+            status: 'OK',
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+            environment: ENV.NODE_ENV
+        },
         message: 'Health check successful',
     });
 });
@@ -37,6 +61,9 @@ app.get('/test-async', asyncHandler(async (req, res) => {
         message: 'Test async route',
     });
 }));
+
+// API Routes
+app.use('/api/auth', authRouter);
 
 // 404 handler for routes that don't exist (MUST be after all routes)
 app.use(notFoundHandler);

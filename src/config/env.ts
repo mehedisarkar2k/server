@@ -22,6 +22,7 @@ const EnvSchema = z.object({
     PORT: z.coerce.number().default(8000),
     MONGO_URI: z.url(),
     BETTER_AUTH_SECRET: z.string().min(6, 'BETTER_AUTH_SECRET must be set'),
+    ALLOWED_ORIGINS: z.string().optional().default('http://localhost:3000,http://localhost:3001,http://localhost:5173'),
 })
 
 export type Env = z.infer<typeof EnvSchema>
