@@ -36,6 +36,7 @@ const logFormat = winston.format.combine(
         }
         return `${info.timestamp} ${info.level}: ${info.message}`;
     }),
+    winston.format.splat(), // Enable string interpolation and multiple arguments
 );
 
 const transports = [
@@ -75,4 +76,46 @@ const Logger = winston.createLogger({
     transports,
 });
 
-export { Logger };
+// Enhanced Logger class to handle multiple arguments
+class EnhancedLogger {
+    private logger = Logger;
+
+    error(...args: any[]) {
+        const message = args.map(arg =>
+            typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+        ).join(' ');
+        this.logger.error(message);
+    }
+
+    warn(...args: any[]) {
+        const message = args.map(arg =>
+            typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+        ).join(' ');
+        this.logger.warn(message);
+    }
+
+    info(...args: any[]) {
+        const message = args.map(arg =>
+            typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+        ).join(' ');
+        this.logger.info(message);
+    }
+
+    http(...args: any[]) {
+        const message = args.map(arg =>
+            typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+        ).join(' ');
+        this.logger.http(message);
+    }
+
+    debug(...args: any[]) {
+        const message = args.map(arg =>
+            typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+        ).join(' ');
+        this.logger.debug(message);
+    }
+}
+
+const LoggerInstance = new EnhancedLogger();
+
+export { LoggerInstance as Logger };

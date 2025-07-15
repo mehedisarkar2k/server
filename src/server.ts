@@ -24,7 +24,7 @@ app.get('/health', (req, res) => {
 });
 
 app.listen(ENV.PORT, () => {
-    Logger.info(`Server is running on port: ${ENV.PORT}`);
+    Logger.info(`Server is running on port:`, ENV.PORT);
     Logger.info(`Server URL: http://localhost:${ENV.PORT}`);
 }).on('error', (error) => {
     Logger.error(`Error starting server: ${error}`);

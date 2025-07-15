@@ -1,3 +1,4 @@
+import { Logger, SendResponse } from "@/core";
 import { Request, Response, NextFunction } from "express";
 import { z, ZodError } from "zod";
 
@@ -56,6 +57,8 @@ export const validateRequest = (schema: z.ZodType) => {
             next();
 
         } catch (error) {
+            Logger.error(`Validation error: ${JSON.stringify(error)}`);
+
             if (error instanceof ZodError) {
                 // Format Zod validation errors
                 const formattedErrors = error.issues.map((err) => ({
@@ -63,22 +66,19 @@ export const validateRequest = (schema: z.ZodType) => {
                     message: err.message,
                     code: err.code
                 }));
-
-                return res.status(400).json({
-                    success: false,
+                return SendResponse.badRequest({
+                    res,
                     message: "Validation failed",
-                    errors: formattedErrors
+                    data: {
+                        errors: formattedErrors
+                    }
                 });
             }
 
-            // Handle unexpected errors
-            return res.status(500).json({
-                success: false,
-                message: "Internal server error during validation"
+            return SendResponse.error({
+                res,
+                message: "Internal server error during validation",
             });
         }
     };
 };
-
-// Backward compatibility alias
-export const validateInput = validateRequest;
