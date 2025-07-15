@@ -6,6 +6,7 @@ import {
     globalErrorHandler,
     asyncHandler,
     notFoundHandler,
+    corsErrorHandler,
 } from '@/middlewares';
 import { authRouter } from '@/features/auth/auth.route';
 
@@ -19,6 +20,7 @@ app.set('trust proxy', ENV.NODE_ENV === 'production');
 // Security middleware
 app.use(helmetConfig);
 app.use(corsConfig);
+app.use(corsErrorHandler);
 
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
