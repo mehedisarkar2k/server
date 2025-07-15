@@ -10,7 +10,6 @@ export const getAuthHandler = (db?: Db) => {
     }
 
     return betterAuth({
-        baseURL: ENV.BASE_URL,
         trustedOrigins: ENV.ALLOWED_ORIGINS.split(','),
         debug: ENV.NODE_ENV !== 'production',
         secret: ENV.BETTER_AUTH_SECRET,
@@ -23,5 +22,13 @@ export const getAuthHandler = (db?: Db) => {
             enabled: true,
             requireEmailVerification: false,
         },
+        socialProviders: {
+            google: {
+                enabled: true,
+                clientId: ENV.GOOGLE_CLIENT_ID,
+                clientSecret: ENV.GOOGLE_CLIENT_SECRET,
+                redirectURI: `${ENV.BASE_URL}/profile`,
+            },
+        }
     })
 };

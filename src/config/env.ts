@@ -23,7 +23,9 @@ const EnvSchema = z.object({
     MONGO_URI: z.url(),
     BETTER_AUTH_SECRET: z.string().min(6, 'BETTER_AUTH_SECRET must be set'),
     ALLOWED_ORIGINS: z.string().optional().default('http://localhost:3000,http://localhost:3001,http://localhost:5173'),
-    BASE_URL: z.url().optional().default('http://localhost:8000'),
+    BASE_URL: z.url().optional().default('http://localhost:3000'),
+    GOOGLE_CLIENT_ID: z.string("GOOGLE_CLIENT_ID must be set"),
+    GOOGLE_CLIENT_SECRET: z.string("GOOGLE_CLIENT_SECRET must be set"),
 })
 
 export type Env = z.infer<typeof EnvSchema>
